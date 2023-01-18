@@ -180,28 +180,33 @@ class HandleRequests(BaseHTTPRequestHandler):
 
     def do_DELETE(self):
         # Set a 204 response code
-        self._set_headers(204)
+        #self._set_headers(204)
 
         # Parse the URL
         (resource, id) = self.parse_url(self.path)
+        response = None
 
         # Delete a single animal from the list
         if resource == "animals":
+            self._set_headers(204)
             delete_animal(id)
             # Encode the new animal and send in response
             self.wfile.write("".encode())
 
         elif resource == "locations":
+            self._set_headers(204)
             delete_location(id)
             self.wfile.write("".encode())
         
         elif resource == "employees":
+            self._set_headers(204)
             delete_employee(id)
             self.wfile.write("".encode())
 
         elif resource == "customers":
-            delete_customer(id)
-            self.wfile.write("".encode())
+            self._set_headers(405)
+            response = {"message": f"Contact the main office to delete customer"}
+            self.wfile.write(json.dumps(response).encode())
 
 
     # Another method! This supports requests with the OPTIONS verb.
