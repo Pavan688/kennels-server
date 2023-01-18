@@ -26,7 +26,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         """Handles GET requests to the server
         """
         # Set the response code to 'Ok'
-        self._set_headers(200)
+        #self._set_headers(200)
         response = {}  # Default response
 
         # Parse the URL and capture the tuple that is returned
@@ -35,24 +35,44 @@ class HandleRequests(BaseHTTPRequestHandler):
         if resource == "animals":
             if id is not None:
                 response = get_single_animal(id)
+                if response is not None:
+                    self._set_headers(200)
+                else:
+                    self._set_headers(404)
+                    response = {"message": f"Amimal {id} is in Canada."}
             else:
                 response = get_all_animals()
         
         elif resource == "locations":
             if id is not None:
                 response = get_single_location(id)
+                if response is not None:
+                    self._set_headers(200)
+                else:
+                    self._set_headers(404)
+                    response = {"message": f"Location {id} is in Canada."}
             else:
                 response = get_all_locations()
         
         elif resource == "employees":
             if id is not None:
                 response = get_single_employee(id)
+                if response is not None:
+                    self._set_headers(200)
+                else:
+                    self._set_headers(404)
+                    response = {"message": f"Employee {id} is in Canada."}
             else:
                 response = get_all_employees()
 
         elif resource == "customers":
             if id is not None:
                 response = get_single_customer(id)
+                if response is not None:
+                    self._set_headers(200)
+                else:
+                    self._set_headers(404)
+                    response = {"message": f"Customer {id} is in Canada."}
             else:
                 response = get_all_customers()
 
@@ -64,7 +84,7 @@ class HandleRequests(BaseHTTPRequestHandler):
     # Here's a method on the class that overrides the parent's method.
     # It handles any POST request.
     def do_POST(self):
-        self._set_headers(201)
+        #self._set_headers(201)
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
 
@@ -87,21 +107,30 @@ class HandleRequests(BaseHTTPRequestHandler):
         # the orange squiggle, you'll define the create_animal
         # function next.
         if resource == "animals":
+            self._set_headers(201)
             new_animal = create_animal(post_body)
         # Encode the new animal and send in response
             self.wfile.write(json.dumps(new_animal).encode())
 
         elif resource == "locations":
-            new_location = create_location(post_body)
+            if "name" in post_body and "address" in post_body is not None:
+                self._set_headers(201)
+                new_location  = create_location(post_body)
+            else:
+                self._set_headers(400)
+                new_location = {
+                "message": f'{"name is required" if "name" not in post_body else ""} {"address is required" if "address" not in post_body else ""}'}
 
             self.wfile.write(json.dumps(new_location).encode())
 
         elif resource == "employees":
+            self._set_headers(201)
             new_employee = create_employee(post_body)
 
             self.wfile.write(json.dumps(new_employee).encode())
 
         elif resource == "customers":
+            self._set_headers(201)
             new_customer = create_customer(post_body)
 
             self.wfile.write(json.dumps(new_customer).encode())
